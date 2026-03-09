@@ -1,0 +1,19 @@
+{
+  "name": "pasha-engineering",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+  "start": "node app.js"
+},
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "ejs-mate": "^4.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^9.2.4",
+    "multer": "^2.1.1"
+  }
+}

@@ -1,0 +1,47 @@
+<%- include("../partials/header") %>
+
+<div class="container mt-5">
+
+<h2>Customer Messages</h2>
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Message</th>
+<th>Date</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<% message.forEach(msg => { %>
+
+<tr>
+
+<td><%= msg.name %></td>
+
+<td><%= msg.email %></td>
+
+<td><%= msg.phone %></td>
+
+<td><%= msg.message %></td>
+
+<td><%= msg.createdAt.toDateString() %></td>
+
+</tr>
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+</div>
+
+<%- include("../partials/footer") %>
