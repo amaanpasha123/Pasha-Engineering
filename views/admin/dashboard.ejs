@@ -43,7 +43,7 @@
 
 <div class="project-card">
 
-<img src="<%= project.image %>" alt="Project Image">
+<img src="<%= project.image.url || project.image.path || project.image %>" alt="Project Image">
 
 <div class="project-info">
 

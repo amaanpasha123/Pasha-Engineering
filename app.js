@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
@@ -10,6 +11,33 @@ const PORT = process.env.PORT || 3000;
 const Project = require("./model/project");
 const Contact = require("./model/form");
 
+
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("./config/cloudinary");
+
+// Configure storage
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: "projects", // folder in Cloudinary
+        allowed_formats: ["jpg", "jpeg", "png"]
+    }
+});
+
+
+
+
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/");
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   }
+// });
+
+
+
 // ================= DATABASE =================
 
 // mongoose.connect("mongodb://127.0.0.1:27017/pashaEngineering")
@@ -17,7 +45,7 @@ const Contact = require("./model/form");
 // .catch(err => console.log(err));
 
 
-require("dotenv").config()
+
 
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("DB Connected"))
@@ -43,14 +71,14 @@ app.use(session({
 
 // ================= MULTER =================
 
-const storage = multer.diskStorage({
-    destination: function(req, file, cb){
-        cb(null, "public/uploads");
-    },
-    filename: function(req, file, cb){
-        cb(null, Date.now() + "-" + file.originalname);
-    }
-});
+// const storage = multer.diskStorage({
+//     destination: function(req, file, cb){
+//         cb(null, "public/uploads");
+//     },
+//     filename: function(req, file, cb){
+//         cb(null, Date.now() + "-" + file.originalname);
+//     }
+// });
 
 const upload = multer({ storage });
 
@@ -120,14 +148,20 @@ app.get("/admin/message", async(req, res)=>{
 
 // Projects Page
 app.get("/projects", async (req, res) => {
+  try {
 
-    const projects = await Project.find().sort({ createdAt: -1 });
+    const projects = await Project.find();
 
-    res.render("projects", { projects });
+    console.log("PROJECT DATA:", projects);
+    console.log("TYPE:", typeof projects);
 
+    res.render("projects", { projects: projects });
+
+  } catch (err) {
+    console.log(err);
+    res.render("projects", { projects: [] });
+  }
 });
-
-
 
 
 //delete project by admin only
@@ -197,7 +231,7 @@ app.post("/admin-login", (req, res) => {
         res.redirect("/admin/dashboard");
     } 
     else {
-        res.redirect("/admin/dashboard");
+        res.redirect("/admin");
         
     }
 
@@ -218,26 +252,76 @@ app.get("/admin/dashboard", async (req, res) => {
 });
 
 
-// Add Project
+
 app.post("/admin/add-project", upload.single("image"), async (req, res) => {
 
-    if(!req.session.admin){
-        return res.redirect("/admin");
+    console.log("ROUTE HIT");
+
+    try {
+
+        console.log("BODY:", req.body);
+        console.log("FILE:", req.file);
+
+        if (!req.file) {
+            return res.send("Image not received");
+        }
+
+        const { title, description } = req.body;
+
+        const newProject = new Project({
+            title,
+            description,
+            image: req.file.path
+        });
+
+        await newProject.save();
+
+        console.log("PROJECT SAVED");
+
+        res.redirect("/admin/dashboard");
+
+    } catch (err) {
+
+        console.log("UPLOAD ERROR:", err);
+        res.send(err);
+
     }
 
+});
+
+
+
+
+app.post("/admin/add-project", upload.single("image"), async (req, res) => {
+  console.log("ROUTE HIT");
+  console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
+
+  try {
     const { title, description } = req.body;
 
+    if (!req.file) {
+      return res.send("Image not received");
+    }
+
     const newProject = new Project({
-        title,
-        description,
-        image: "/uploads/" + req.file.filename
+      title,
+      description,
+      image: "/uploads/" + req.file.filename
     });
 
     await newProject.save();
 
+    console.log("PROJECT SAVED");
+
     res.redirect("/admin/dashboard");
 
+  } catch (err) {
+    console.log(err);
+    res.send(err);
+  }
 });
+
 
 
 // Logout
