@@ -12,9 +12,16 @@ const Contact = require("./model/form");
 
 // ================= DATABASE =================
 
-mongoose.connect("mongodb://127.0.0.1:27017/pashaEngineering")
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
+// mongoose.connect("mongodb://127.0.0.1:27017/pashaEngineering")
+// .then(() => console.log("MongoDB Connected"))
+// .catch(err => console.log(err));
+
+
+require("dotenv").config()
+
+mongoose.connect(process.env.MONGO_URI)
+.then(()=>console.log("DB Connected"))
+.catch(err=>console.log(err))
 
 
 // ================= MIDDLEWARE =================
